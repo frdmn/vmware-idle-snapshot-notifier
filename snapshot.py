@@ -6,18 +6,22 @@ import argparse
 import sys
 import time
 import ssl
+import os
+import json
 
 from pyVmomi import vim, vmodl
 from pyVim.task import WaitForTask
 from pyVim import connect
 from pyVim.connect import Disconnect, SmartConnect, GetSi
 
-host = 'vcenter.company.de'
-user = 'user@vcenter.local'
-passw = 'pass'
-# vCenter Konfiguration
-operation = 'list_all'
-vm_name = 'blog.customer.de'
+# Konfigurationsdatei laden
+configurationFile = './config.json'
+if os.path.isfile(configurationFile):
+    with open(configurationFile, 'r') as f:
+        config = json.load(f)
+else:
+    print("Couldn't read config file \"config.json\"")
+    sys.exit(1)
 
 # Funktion um auf allgemeine VMware API Objekte zuzugreifen
 def get_obj(content, vimtype, name):
@@ -43,16 +47,16 @@ def list_snapshots_recursively(snapshots):
 # Main Funktion
 def main():
     # Versuche Verbindung zur API aufzubauen...
-    si = connect.Connect(host, 443, user, passw, sslContext=ssl._create_unverified_context())
+    si = connect.Connect(config['hostname'], 443, config['username'], config['password'], sslContext=ssl._create_unverified_context())
     atexit.register(Disconnect, si)
     content = si.RetrieveContent()
 
     # Zugriff auf VM-Objekt der eigentlichen virtuellen Maschine
-    vm = get_obj(content, [vim.VirtualMachine], vm_name)
+    vm = get_obj(content, [vim.VirtualMachine], config['vm'])
 
     # Testen ob VM existiert
     if not vm:
-        print("Virtual Machine %s doesn't exists" % vm_name)
+        print("Virtual Machine %s doesn't exists" % config['vm'])
         sys.exit(1)
 
     # Abruch, wenn kein Snapshot vorhanden
@@ -60,12 +64,11 @@ def main():
         print("Virtual Machine %s doesn't have any snapshots" % vm.name)
         sys.exit(0)
 
-    # Snapshots über list_snapshots_recursively() auflisten
+    # Snapshots ueber list_snapshots_recursively() auflisten
     print("Display list of snapshots on virtual machine %s" % vm.name)
     snapshot_paths = list_snapshots_recursively(vm.snapshot.rootSnapshotList)
     for snapshot in snapshot_paths:
         print(snapshot)
-
     else:
         print("No operation specified")
 
