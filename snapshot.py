@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+# Dependency imports
 import atexit
 import argparse
 import sys
@@ -14,9 +15,11 @@ from pyVim.connect import Disconnect, SmartConnect, GetSi
 host = 'vcenter.company.de'
 user = 'user@vcenter.local'
 passw = 'pass'
+# vCenter Konfiguration
 operation = 'list_all'
 vm_name = 'blog.customer.de'
 
+# Funktion um auf allgemeine VMware API Objekte zuzugreifen
 def get_obj(content, vimtype, name):
     obj = None
     container = content.viewManager.CreateContainerView(
@@ -27,6 +30,7 @@ def get_obj(content, vimtype, name):
             break
     return obj
 
+# (recursive) Funktion um alle aktuellen Snapshots aufzulisten
 def list_snapshots_recursively(snapshots):
     snapshot_data = []
     snap_text = ""
@@ -36,28 +40,27 @@ def list_snapshots_recursively(snapshots):
         snapshot_data = snapshot_data + list_snapshots_recursively(snapshot.childSnapshotList)
     return snapshot_data
 
+# Main Funktion
 def main():
-    print("Trying to connect to VCENTER SERVER . . .")
-
+    # Versuche Verbindung zur API aufzubauen...
     si = connect.Connect(host, 443, user, passw, sslContext=ssl._create_unverified_context())
-
-    # Disconnect upon sigterm
     atexit.register(Disconnect, si)
-
-    print("Connected to VCENTER SERVER !")
-
     content = si.RetrieveContent()
 
+    # Zugriff auf VM-Objekt der eigentlichen virtuellen Maschine
     vm = get_obj(content, [vim.VirtualMachine], vm_name)
 
+    # Testen ob VM existiert
     if not vm:
         print("Virtual Machine %s doesn't exists" % vm_name)
-        sys.exit()
+        sys.exit(1)
 
+    # Abruch, wenn kein Snapshot vorhanden
     if vm.snapshot is None:
         print("Virtual Machine %s doesn't have any snapshots" % vm.name)
-        sys.exit()
+        sys.exit(0)
 
+    # Snapshots über list_snapshots_recursively() auflisten
     print("Display list of snapshots on virtual machine %s" % vm.name)
     snapshot_paths = list_snapshots_recursively(vm.snapshot.rootSnapshotList)
     for snapshot in snapshot_paths:
@@ -65,6 +68,9 @@ def main():
 
     else:
         print("No operation specified")
+
+    # Script ohne returncode beenden
+    sys.exit(0)
 
 # Main thread
 if __name__ == "__main__":
