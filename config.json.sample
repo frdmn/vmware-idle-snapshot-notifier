@@ -2,5 +2,6 @@
     "hostname":"vcenter.company.de",
     "username":"user@vcenter.local",
     "password":"pass",
-    "vm":"blog.server.de"
+    "vm":"blog.server.de",
+    "debug": false
 }

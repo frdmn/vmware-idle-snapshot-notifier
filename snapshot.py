@@ -24,6 +24,10 @@ else:
     print("Couldn't read config file \"config.json\"")
     sys.exit(1)
 
+def debug_print(msg):
+    if config['debug']:
+        print(msg)
+
 # Funktion um auf allgemeine VMware API Objekte zuzugreifen
 def get_obj(content, vimtype, name):
     obj = None
@@ -48,6 +52,7 @@ def list_snapshots_recursively(snapshots):
 # Main Funktion
 def main():
     # Versuche Verbindung zur API aufzubauen...
+    debug_print("Verindungaufbau zu Server \"%s\" mit Benutzer \"%s\"" % (config['hostname'], config['username']))
     si = connect.Connect(config['hostname'], 443, config['username'], config['password'], sslContext=ssl._create_unverified_context())
     atexit.register(Disconnect, si)
     content = si.RetrieveContent()
@@ -68,12 +73,12 @@ def main():
 
         # Wenn keine Snapshots, for-loop brechen
         if vm.snapshot is None:
-            print("Virtual Machine %s doesn't have any snapshots" % vm.name)
+            debug_print("VM \"%s\" besitzt aktuell keine Snapshots" % vm.name)
             continue
 
         # Maschine hat snapshots => alle anzeigen
-        print("Display list of snapshots on virtual machine %s" % vm.name)
         snapshot_paths = list_snapshots_recursively(vm.snapshot.rootSnapshotList)
+        debug_print("VM \"%s\" besitzt aktuell %d Snapshot:" % (vm.name, len(snapshot_paths)))
         for snapshot in snapshot_paths:
             print(snapshot)
 
