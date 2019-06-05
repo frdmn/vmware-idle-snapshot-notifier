@@ -34,12 +34,12 @@ def get_obj(content, vimtype, name):
             break
     return obj
 
-# (recursive) Funktion um alle aktuellen Snapshots aufzulisten
+# (Recursive) Funktion um alle aktuellen Snapshots aufzulisten
 def list_snapshots_recursively(snapshots):
     snapshot_data = []
     snap_text = ""
     for snapshot in snapshots:
-        snap_text = "Name: %s; Description: %s; CreateTime: %s; State: %s" % (snapshot.name, snapshot.description, snapshot.createTime, snapshot.state)
+        snap_text = "Name: %s; Description: %s; CreateTime: %s; State: %s" % (snapshot.name, snapshot.description,snapshot.createTime, snapshot.state)
         snapshot_data.append(snap_text)
         snapshot_data = snapshot_data + list_snapshots_recursively(snapshot.childSnapshotList)
     return snapshot_data
@@ -51,30 +51,31 @@ def main():
     atexit.register(Disconnect, si)
     content = si.RetrieveContent()
 
-    # Zugriff auf VM-Objekt der eigentlichen virtuellen Maschine
-    vm = get_obj(content, [vim.VirtualMachine], config['vm'])
+    # Erstelle rekursiven ContainerView aus der Wurzel-Ebene der alle VMs enthält
+    container = content.rootFolder
+    viewType = [vim.VirtualMachine]
+    recursive = True
+    containerView = content.viewManager.CreateContainerView(container, viewType, recursive)
 
-    # Testen ob VM existiert
-    if not vm:
-        print("Virtual Machine %s doesn't exists" % config['vm'])
-        sys.exit(1)
+    children = containerView.view
+    # Über VMs iterieren um nach Snapshots zu suchen
+    for child in children:
+        vm_name = child.summary.config.name
 
-    # Abruch, wenn kein Snapshot vorhanden
-    if vm.snapshot is None:
-        print("Virtual Machine %s doesn't have any snapshots" % vm.name)
-        sys.exit(0)
+        # Lade VM-Objekt
+        vm = get_obj(content, [vim.VirtualMachine], vm_name)
 
-    # Snapshots ueber list_snapshots_recursively() auflisten
-    print("Display list of snapshots on virtual machine %s" % vm.name)
-    snapshot_paths = list_snapshots_recursively(vm.snapshot.rootSnapshotList)
-    for snapshot in snapshot_paths:
-        print(snapshot)
-    else:
-        print("No operation specified")
+        # Wenn keine Snapshots, for-loop brechen
+        if vm.snapshot is None:
+            print("Virtual Machine %s doesn't have any snapshots" % vm.name)
+            continue
 
-    # Script ohne returncode beenden
-    sys.exit(0)
+        # Maschine hat snapshots => alle anzeigen
+        print("Display list of snapshots on virtual machine %s" % vm.name)
+        snapshot_paths = list_snapshots_recursively(vm.snapshot.rootSnapshotList)
+        for snapshot in snapshot_paths:
+            print(snapshot)
 
-# Main thread
+# Start program
 if __name__ == "__main__":
     main()
