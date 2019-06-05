@@ -54,9 +54,8 @@ $ python snapshot.py
 
 ## Requirements / Dependencies
 
-* This
-* And that
-* As well as this
+* Python 2/3
+* vCenter credentialss
 
 ## Version
 
