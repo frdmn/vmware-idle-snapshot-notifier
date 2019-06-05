@@ -54,7 +54,7 @@ def list_snapshots_recursively(vm_name, snapshots):
     snapshot_data = []
     snap_text = ""
     for snapshot in snapshots:
-        if days_between(snapshot.createTime, today) >= config['snapshot-max-age-in-days']:
+        if days_between(snapshot.createTime, today) >= config['snapshot-min-age-in-days']:
             snap_text = "VM: %s; SnapshotName: %s; Description: %s; CreatedAt: %s; AgeInDays: %s; Status: %s" % (vm_name, snapshot.name, snapshot.description, snapshot.createTime, days_between(snapshot.createTime, today), snapshot.state)
             snapshot_data.append(snap_text)
             snapshot_data = snapshot_data + list_snapshots_recursively(vm_name, snapshot.childSnapshotList)
@@ -68,7 +68,7 @@ def main():
     atexit.register(Disconnect, si)
     content = si.RetrieveContent()
 
-    debug_print("Looking for snapshots older than %d days..." % config['snapshot-max-age-in-days'])
+    debug_print("Looking for snapshots older than %d days..." % config['snapshot-min-age-in-days'])
 
     # Create recursive container view from root level that contains all existing VMs
     container = content.rootFolder
