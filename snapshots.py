@@ -17,6 +17,17 @@ from pyVim.task import WaitForTask
 from pyVim import connect
 from pyVim.connect import Disconnect, SmartConnect, GetSi
 
+# Create argument parser
+parser = argparse.ArgumentParser(description='Report idle VMware snapshots')
+parser.add_argument('--min-age-in-days', type=int, help='The minimum age in days of snapshots to report')
+parser.add_argument('--debug', action='store_true', help='Enable debug mode (optional)')
+args = parser.parse_args()
+
+# Check for required arguments
+if not args.min_age_in_days:
+    print('Error: missing --min-age-in-days argument!')
+    sys.exit(1)
+
 # Load config file
 configurationFile = './config.json'
 if os.path.isfile(configurationFile):
@@ -31,7 +42,7 @@ today = datetime.utcnow().replace(tzinfo=pytz.UTC)
 
 # Function to conditionally print debug message
 def debug_print(msg):
-    if config['debug']:
+    if args.debug:
         print(msg)
 
 # Function to calculate days between two dates
@@ -54,7 +65,7 @@ def list_snapshots_recursively(vm_name, snapshots):
     snapshot_data = []
     snap_text = ""
     for snapshot in snapshots:
-        if days_between(snapshot.createTime, today) >= config['snapshot-min-age-in-days']:
+        if days_between(snapshot.createTime, today) >= args.min_age_in_days:
             snap_text = "VM: %s; SnapshotName: %s; Description: %s; CreatedAt: %s; AgeInDays: %s; Status: %s" % (vm_name, snapshot.name, snapshot.description, snapshot.createTime, days_between(snapshot.createTime, today), snapshot.state)
             snapshot_data.append(snap_text)
             snapshot_data = snapshot_data + list_snapshots_recursively(vm_name, snapshot.childSnapshotList)
@@ -68,7 +79,7 @@ def main():
     atexit.register(Disconnect, si)
     content = si.RetrieveContent()
 
-    debug_print("Looking for snapshots older than %d days..." % config['snapshot-min-age-in-days'])
+    debug_print("Looking for snapshots older than %d days..." % args.min_age_in_days)
 
     # Create recursive container view from root level that contains all existing VMs
     container = content.rootFolder
