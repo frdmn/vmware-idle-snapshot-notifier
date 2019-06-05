@@ -17,38 +17,6 @@ from pyVim.task import WaitForTask
 from pyVim import connect
 from pyVim.connect import Disconnect, SmartConnect, GetSi
 
-# Create argument parser
-parser = argparse.ArgumentParser(description='Report idle VMware snapshots')
-parser.add_argument('--min-age-in-days', type=int, help='The minimum age in days of snapshots to report')
-parser.add_argument('--config', help='Path to configuration file')
-parser.add_argument('--debug', action='store_true', help='Enable debug mode (optional)')
-args = parser.parse_args()
-
-# Check for required arguments
-if not args.min_age_in_days:
-    print('Error: missing --min-age-in-days argument!')
-    sys.exit(1)
-
-# Load config file
-configurationFile = './config.json'
-
-if args.config:
-    if os.path.isfile(args.config):
-        configurationFile = args.config
-    else:
-        print("Couldn't read config file \"%s\"" % args.config)
-        sys.exit(1)
-
-if os.path.isfile(configurationFile):
-    with open(configurationFile, 'r') as f:
-        config = json.load(f)
-else:
-    print("Couldn't read config file \"%s\"" % configurationFile)
-    sys.exit(1)
-
-# Store todays date
-today = datetime.utcnow().replace(tzinfo=pytz.UTC)
-
 # Function to conditionally print debug message
 def debug_print(msg):
     if args.debug:
@@ -114,6 +82,38 @@ def main():
         debug_print("VM \"%s\" has %d snapshots:" % (vm.name, len(snapshot_paths)))
         for snapshot in snapshot_paths:
             print(snapshot)
+
+# Create argument parser
+parser = argparse.ArgumentParser(description='Report idle VMware snapshots')
+parser.add_argument('--min-age-in-days', type=int, help='The minimum age in days of snapshots to report')
+parser.add_argument('--config', help='Path to configuration file')
+parser.add_argument('--debug', action='store_true', help='Enable debug mode (optional)')
+args = parser.parse_args()
+
+# Check for required arguments
+if not args.min_age_in_days:
+    print('Error: missing --min-age-in-days argument!')
+    sys.exit(1)
+
+# Load config file
+configurationFile = './config.json'
+
+if args.config:
+    if os.path.isfile(args.config):
+        configurationFile = args.config
+    else:
+        print("Couldn't read config file \"%s\"" % args.config)
+        sys.exit(1)
+
+if os.path.isfile(configurationFile):
+    with open(configurationFile, 'r') as f:
+        config = json.load(f)
+else:
+    print("Couldn't read config file \"%s\"" % configurationFile)
+    sys.exit(1)
+
+# Store todays date
+today = datetime.utcnow().replace(tzinfo=pytz.UTC)
 
 # Start program
 if __name__ == "__main__":
