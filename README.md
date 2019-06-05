@@ -23,10 +23,21 @@ Simple Python script to connect to a vCenter/ESXi system and check any existing 
     cp config.json.sample config.json
     ```
 
-## Usage
+## Usage / Arguments
 
 ```
-$ python snapshots.py
+$ python snapshots.py -h
+usage: snapshots.py [-h] [--min-age-in-days MIN_AGE_IN_DAYS] [--config CONFIG]
+                    [--debug]
+
+Report idle VMware snapshots
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --min-age-in-days MIN_AGE_IN_DAYS
+                        The minimum age in days of snapshots to report
+  --config CONFIG       Path to configuration file
+  --debug               Enable debug mode (optional)
 ```
 
 ## Contributing
