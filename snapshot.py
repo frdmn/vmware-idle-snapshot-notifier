@@ -63,7 +63,7 @@ def list_snapshots_recursively(vm_name, snapshots):
 # Main function
 def main():
     # Try to establish connection to API
-    debug_print("Trying to establish connection to server \"%s\" using account \"%s\"" % (config['hostname'], config['username']))
+    debug_print("Trying to establish connection to server \"%s\" using account \"%s\"..." % (config['hostname'], config['username']))
     si = connect.Connect(config['hostname'], 443, config['username'], config['password'], sslContext=ssl._create_unverified_context())
     atexit.register(Disconnect, si)
     content = si.RetrieveContent()
@@ -86,7 +86,7 @@ def main():
 
         # Continue for loop in case there are no snapshots
         if vm.snapshot is None:
-            debug_print("VM \"%s\" doesn't have any" % vm.name)
+            debug_print("VM \"%s\" doesn't have any snapshots" % vm.name)
             continue
 
         # List snapshots
