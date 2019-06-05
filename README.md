@@ -1,4 +1,4 @@
-# vsphere-idle-snapshot-notifier
+# vmware-idle-snapshot-notifier
 
 Simple Python script to connect to a vCenter/ESXi system and check any existing VMs for idle snapshots that are older than `n` days. If there are any matches it will send out a notification (currently only by mail) to a configurable mail recipient.
 
@@ -8,7 +8,7 @@ Simple Python script to connect to a vCenter/ESXi system and check any existing 
 2. Clone this repository:
 
     ```shell
-    git clone https://github.com/frdmn/vsphere-idle-snapshot-notifier
+    git clone https://github.com/frdmn/vmware-idle-snapshot-notifier
     ```
 
 3. Install the project using `pip`:
