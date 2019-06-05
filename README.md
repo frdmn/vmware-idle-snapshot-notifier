@@ -26,7 +26,7 @@ Simple Python script to connect to a vCenter/ESXi system and check any existing 
 ## Usage
 
 ```
-$ python snapshot.py
+$ python snapshots.py
 ```
 
 ## Contributing
@@ -55,7 +55,7 @@ $ python snapshot.py
 ## Requirements / Dependencies
 
 * Python 2/3
-* vCenter credentialss
+* vCenter credentials
 
 ## Version
 
