@@ -9,7 +9,9 @@ import time
 import ssl
 import os
 import json
+import pytz
 
+from datetime import datetime
 from pyVmomi import vim, vmodl
 from pyVim.task import WaitForTask
 from pyVim import connect
@@ -24,10 +26,17 @@ else:
     print("Couldn't read config file \"config.json\"")
     sys.exit(1)
 
+# Store todays date
+today = datetime.utcnow().replace(tzinfo=pytz.UTC)
+
 # Function to conditionally print debug message
 def debug_print(msg):
     if config['debug']:
         print(msg)
+
+# Function to calculate days between two dates
+def days_between(d1, d2):
+    return abs((d2 - d1).days)
 
 # Function to access API objects in general
 def get_obj(content, vimtype, name):
@@ -45,9 +54,10 @@ def list_snapshots_recursively(vm_name, snapshots):
     snapshot_data = []
     snap_text = ""
     for snapshot in snapshots:
-        snap_text = "VM: %s; SnapshotName: %s; Description: %s; CreatedAt: %s; Status: %s" % (vm_name, snapshot.name, snapshot.description,snapshot.createTime, snapshot.state)
-        snapshot_data.append(snap_text)
-        snapshot_data = snapshot_data + list_snapshots_recursively(vm_name, snapshot.childSnapshotList)
+        if days_between(snapshot.createTime, today) >= config['snapshot-max-age-in-days']:
+            snap_text = "VM: %s; SnapshotName: %s; Description: %s; CreatedAt: %s; AgeInDays: %s; Status: %s" % (vm_name, snapshot.name, snapshot.description, snapshot.createTime, days_between(snapshot.createTime, today), snapshot.state)
+            snapshot_data.append(snap_text)
+            snapshot_data = snapshot_data + list_snapshots_recursively(vm_name, snapshot.childSnapshotList)
     return snapshot_data
 
 # Main function
@@ -57,6 +67,8 @@ def main():
     si = connect.Connect(config['hostname'], 443, config['username'], config['password'], sslContext=ssl._create_unverified_context())
     atexit.register(Disconnect, si)
     content = si.RetrieveContent()
+
+    debug_print("Looking for snapshots older than %d days..." % config['snapshot-max-age-in-days'])
 
     # Create recursive container view from root level that contains all existing VMs
     container = content.rootFolder
