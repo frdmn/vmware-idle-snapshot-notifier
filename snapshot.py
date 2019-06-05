@@ -40,13 +40,13 @@ def get_obj(content, vimtype, name):
     return obj
 
 # (Recursive) Funktion um alle aktuellen Snapshots aufzulisten
-def list_snapshots_recursively(snapshots):
+def list_snapshots_recursively(vm_name, snapshots):
     snapshot_data = []
     snap_text = ""
     for snapshot in snapshots:
-        snap_text = "Name: %s; Description: %s; CreateTime: %s; State: %s" % (snapshot.name, snapshot.description,snapshot.createTime, snapshot.state)
+        snap_text = "VM: %s; Name: %s; Beschreibung: %s; ErstelltAm: %s; Status: %s" % (vm_name, snapshot.name, snapshot.description,snapshot.createTime, snapshot.state)
         snapshot_data.append(snap_text)
-        snapshot_data = snapshot_data + list_snapshots_recursively(snapshot.childSnapshotList)
+        snapshot_data = snapshot_data + list_snapshots_recursively(vm_name, snapshot.childSnapshotList)
     return snapshot_data
 
 # Main Funktion
@@ -77,7 +77,7 @@ def main():
             continue
 
         # Maschine hat snapshots => alle anzeigen
-        snapshot_paths = list_snapshots_recursively(vm.snapshot.rootSnapshotList)
+        snapshot_paths = list_snapshots_recursively(vm_name, vm.snapshot.rootSnapshotList)
         debug_print("VM \"%s\" besitzt aktuell %d Snapshot:" % (vm.name, len(snapshot_paths)))
         for snapshot in snapshot_paths:
             print(snapshot)
