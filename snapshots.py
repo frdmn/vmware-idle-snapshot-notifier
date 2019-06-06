@@ -10,6 +10,7 @@ import ssl
 import os
 import json
 import pytz
+import apprise
 
 from datetime import datetime
 from pyVmomi import vim, vmodl
@@ -48,6 +49,11 @@ def list_snapshots_recursively(vm_name, snapshots):
             snapshot_data = snapshot_data + list_snapshots_recursively(vm_name, snapshot.childSnapshotList)
     return snapshot_data
 
+# Function to send out apprise notification
+def send_notification(subject, message):
+    appriseInstance.notify(title=subject, body=message)
+    return
+
 # Main function
 def main():
     # Try to establish connection to API
@@ -74,14 +80,14 @@ def main():
 
         # Continue for loop in case there are no snapshots
         if vm.snapshot is None:
-            debug_print("VM \"%s\" doesn't have any snapshots" % vm.name)
+            debug_print("\"%s\": no snapshots available" % vm.name)
             continue
 
         # List snapshots
         snapshot_paths = list_snapshots_recursively(vm_name, vm.snapshot.rootSnapshotList)
-        debug_print("VM \"%s\" has %d snapshots:" % (vm.name, len(snapshot_paths)))
         for snapshot in snapshot_paths:
-            print(snapshot)
+            print("\"%s\": found affected snapshot - %s" % (vm.name, snapshot))
+            send_notification(vm.name, snapshot)
 
 # Create argument parser
 parser = argparse.ArgumentParser(description='Report idle VMware snapshots')
@@ -115,6 +121,10 @@ else:
 # Store todays date
 today = datetime.utcnow().replace(tzinfo=pytz.UTC)
 
-# Start program
+# Initiate apprise instance to send out notifications
+appriseInstance = apprise.Apprise()
+appriseInstance.add(config['notification'])
+
+# Initiate main function
 if __name__ == "__main__":
     main()

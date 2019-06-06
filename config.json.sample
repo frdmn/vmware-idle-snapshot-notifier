@@ -2,5 +2,6 @@
     "hostname":"vcenter.company.de",
     "username":"user@vcenter.local",
     "password":"pass",
+    "notification":"rockets://Jr2sIojYWyMgIQHL2/AsCEYH7uYiHRgt2cla2qLhZuqPmZ5n2kQdxFNQGSFF8YgeAf@rocketchat.company.de",
     "debug": false
 }
