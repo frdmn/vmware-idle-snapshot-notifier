@@ -2,6 +2,5 @@
     "hostname":"vcenter.company.de",
     "username":"user@vcenter.local",
     "password":"pass",
-    "snapshot-min-age-in-days": 30,
     "debug": false
 }
