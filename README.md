@@ -9,6 +9,7 @@ Simple Python script to connect to a vCenter/ESXi system and check any existing 
 
     ```shell
     git clone https://github.com/frdmn/vmware-idle-snapshot-notifier
+    cd vmware-idle-snapshot-notifier
     ```
 
 3. Install the project using `pip`:
@@ -21,6 +22,7 @@ Simple Python script to connect to a vCenter/ESXi system and check any existing 
 
     ```shell
     cp config.json.sample config.json
+    vi config.json
     ```
 
 ## Usage / Arguments
