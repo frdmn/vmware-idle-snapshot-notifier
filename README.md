@@ -1,6 +1,6 @@
 # vmware-idle-snapshot-notifier
 
-Simple Python script to connect to a vCenter/ESXi system and check any existing VMs for idle snapshots that are older than `n` days. If there are any matches it will send out a notification (to almost any platform wether its Rocket.Chat, Slack, Mattermost, Microsoft Teams, Telegram, E-Mail or HTTP) to a configurable recipient.
+Simple Python script to connect to a vCenter/ESXi system and check any existing VMs for idle snapshots that are older than `n` days. If there are any matches it will send out a notification (to almost any platform whether its Rocket.Chat, Slack, Mattermost, Microsoft Teams, Telegram, E-Mail or HTTP) to a configurable recipient.
 
 ## Installation
 
