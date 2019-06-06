@@ -1,6 +1,6 @@
 # vmware-idle-snapshot-notifier
 
-Simple Python script to connect to a vCenter/ESXi system and check any existing VMs for idle snapshots that are older than `n` days. If there are any matches it will send out a notification (currently only by mail) to a configurable mail recipient.
+Simple Python script to connect to a vCenter/ESXi system and check any existing VMs for idle snapshots that are older than `n` days. If there are any matches it will send out a notification (to almost any platform wether its Rocket.Chat, Slack, Mattermost, Microsoft Teams, Telegram, E-Mail or HTTP) to a configurable recipient.
 
 ## Installation
 
@@ -38,6 +38,22 @@ optional arguments:
                         The minimum age in days of snapshots to report
   --config CONFIG       Path to configuration file
   --debug               Enable debug mode (optional)
+```
+
+### Notification configuration
+
+Below you can find a few ([apprise](https://github.com/caronc/apprise#popular-notification-services)) configuration examples:
+
+#### Rocket.Chat
+
+```
+"rockets://ADmrL3CmetjNcBbn3/r8RKc9m4gcaS5xMwLf3NfnPArDPJBrLQMbqM7hyParFYP7t8@rocketchat.iwelt.de/?avatar=No"
+```
+
+#### E-Mail
+
+```
+mailtos://userid:password@server.com?smtp=smtp.server.com
 ```
 
 ## Contributing
