@@ -47,7 +47,7 @@ def list_snapshots_recursively(vm_name, snapshots):
         if days_between(snapshot.createTime, today) >= args.min_age_in_days:
             # Check if "NO-REPORT" tag exists...
             if config['no-report-tag'] in snapshot.description:
-                print("No-Report-Tag found in snapshot description of \"%s\". Skip reporting..." % (config['no-report-tag'], vm_name))
+                print("No-Report-Tag found in snapshot description of \"%s\". Skip reporting..." % (vm_name))
                 break
 
             # Otherwise add snapshot to results dict
