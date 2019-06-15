@@ -43,7 +43,14 @@ def list_snapshots_recursively(vm_name, snapshots):
     snapshot_data = []
     snap_text = ""
     for snapshot in snapshots:
+        # Check if min_age_in_days is reached...
         if days_between(snapshot.createTime, today) >= args.min_age_in_days:
+            # Check if "NO-REPORT" tag exists...
+            if config['no-report-tag'] in snapshot.description:
+                print("No-Report-Tag found in snapshot description of \"%s\". Skip reporting..." % (config['no-report-tag'], vm_name))
+                break
+
+            # Otherwise add snapshot to results dict
             snap_text = "VM: %s; SnapshotName: %s; Description: %s; CreatedAt: %s; AgeInDays: %s; Status: %s" % (vm_name, snapshot.name, snapshot.description, snapshot.createTime, days_between(snapshot.createTime, today), snapshot.state)
             snapshot_data.append(snap_text)
             snapshot_data = snapshot_data + list_snapshots_recursively(vm_name, snapshot.childSnapshotList)
@@ -117,6 +124,8 @@ if os.path.isfile(configurationFile):
 else:
     print("Couldn't read config file \"%s\"" % configurationFile)
     sys.exit(1)
+
+config['no-report-tag'] = "[NO-REPORT]"
 
 # Store todays date
 today = datetime.utcnow().replace(tzinfo=pytz.UTC)
