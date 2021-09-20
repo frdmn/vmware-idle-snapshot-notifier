@@ -1,4 +1,4 @@
-apprise==0.7.7
+apprise==0.9.5.1
 notifiers==0.6.3
 pytz==2018.5
 pyvmomi==6.7.1.2018.12
